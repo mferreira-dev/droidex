@@ -2,6 +2,7 @@ package pt.mferreira.droidex.models.pokemon
 
 import com.google.gson.annotations.SerializedName
 import pt.mferreira.droidex.models.global.NamedApiResource
+import java.io.Serializable
 
 /**
  * @property stat URL for the stat represented by this object. (Stat class)
@@ -12,4 +13,4 @@ data class PokemonStat (
     val stat: NamedApiResource,
     val effort: Int,
     @SerializedName("base_stat") val baseStat: Int
-)
+) : Serializable

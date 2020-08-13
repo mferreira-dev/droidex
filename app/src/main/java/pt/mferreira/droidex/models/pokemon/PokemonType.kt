@@ -1,6 +1,7 @@
 package pt.mferreira.droidex.models.pokemon
 
 import pt.mferreira.droidex.models.global.NamedApiResource
+import java.io.Serializable
 
 /**
  * @property slot Which of the Pokémon's slot this type belongs to (1 or 2).
@@ -9,4 +10,4 @@ import pt.mferreira.droidex.models.global.NamedApiResource
 data class PokemonType (
     val slot: Int,
     val type: NamedApiResource
-)
+) : Serializable

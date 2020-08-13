@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "Droidex USUM"
+rootProject.name = "Droidex"

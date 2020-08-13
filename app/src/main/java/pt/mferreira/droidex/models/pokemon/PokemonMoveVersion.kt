@@ -2,6 +2,7 @@ package pt.mferreira.droidex.models.pokemon
 
 import com.google.gson.annotations.SerializedName
 import pt.mferreira.droidex.models.global.NamedApiResource
+import java.io.Serializable
 
 /**
  * @property learnMethod URL to the learn method represented by this object. (MoveLearnMethod class)
@@ -10,4 +11,4 @@ import pt.mferreira.droidex.models.global.NamedApiResource
 data class PokemonMoveVersion (
     @SerializedName("move_learn_method") val learnMethod: NamedApiResource,
     @SerializedName("level_learned_at") val levelLearnedAt: Int
-)
+) : Serializable

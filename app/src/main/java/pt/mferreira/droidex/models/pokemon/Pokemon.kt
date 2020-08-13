@@ -1,7 +1,7 @@
 package pt.mferreira.droidex.models.pokemon
 
-import com.google.gson.annotations.SerializedName
 import pt.mferreira.droidex.models.global.NamedApiResource
+import java.io.Serializable
 
 /**
  * @property id The identifier for this resource.
@@ -13,10 +13,10 @@ import pt.mferreira.droidex.models.global.NamedApiResource
  * @property stats List of the Pokémon's base stats.
  * @property moves List of the moves the Pokémon can learn.
  * @property sprites URLs of the Pokémon's sprites.
- * @property species URL of the Pokémon's species.
+ * @property species URL of the Pokémon's species. (PokemonSpecies class)
  */
 data class Pokemon (
-    val id: Int,
+    var id: Int,
     val name: String,
     val height: Int,
     val weight: Int,
@@ -26,4 +26,4 @@ data class Pokemon (
     val moves: List<PokemonMove>,
     val sprites: PokemonSprites,
     val species: NamedApiResource
-)
+) : Serializable

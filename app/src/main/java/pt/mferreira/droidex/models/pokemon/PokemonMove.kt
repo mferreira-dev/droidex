@@ -2,6 +2,7 @@ package pt.mferreira.droidex.models.pokemon
 
 import com.google.gson.annotations.SerializedName
 import pt.mferreira.droidex.models.global.NamedApiResource
+import java.io.Serializable
 
 /**
  * @property move URL to the move represented by this object. (Move class)
@@ -10,4 +11,4 @@ import pt.mferreira.droidex.models.global.NamedApiResource
 data class PokemonMove (
     val move: NamedApiResource,
     @SerializedName("version_group_details") val details: List<PokemonMoveVersion>
-)
+) : Serializable
