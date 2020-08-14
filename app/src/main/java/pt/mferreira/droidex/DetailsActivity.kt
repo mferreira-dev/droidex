@@ -2,7 +2,6 @@ package pt.mferreira.droidex
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -16,7 +15,6 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.google.gson.Gson
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.ability_sheet_fragment.*
 import kotlinx.android.synthetic.main.activity_details.*
 import pt.mferreira.droidex.models.pokemon.Pokemon
 import pt.mferreira.droidex.models.pokemon.PokemonSpecies
@@ -35,101 +33,8 @@ class DetailsActivity : AppCompatActivity() {
         // Get selected Pokémon.
         pokemon = intent.getSerializableExtra("details") as Pokemon
 
-        // Hide status bar.
-        val window: Window = window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-
-        when (pokemon.types[0].type.name) {
-            "bug" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#A8B820"))
-                window.statusBarColor = Color.parseColor("#A8B820")
-            }
-
-            "dark" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#705848"))
-                window.statusBarColor = Color.parseColor("#705848")
-            }
-
-            "dragon" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#7038F8"))
-                window.statusBarColor = Color.parseColor("#7038F8")
-            }
-
-            "electric" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#F8D030"))
-                window.statusBarColor = Color.parseColor("#F8D030")
-            }
-
-            "fairy" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#EE99AC"))
-                window.statusBarColor = Color.parseColor("#EE99AC")
-            }
-
-            "fire" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#F08030"))
-                window.statusBarColor = Color.parseColor("#F08030")
-            }
-
-            "fighting" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#C03028"))
-                window.statusBarColor = Color.parseColor("#C03028")
-            }
-
-            "flying" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#A890F0"))
-                window.statusBarColor = Color.parseColor("#A890F0")
-            }
-
-            "grass" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#78C850"))
-                window.statusBarColor = Color.parseColor("#78C850")
-            }
-
-            "ghost" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#705898"))
-                window.statusBarColor = Color.parseColor("#705898")
-            }
-
-            "ground" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#E0C068"))
-                window.statusBarColor = Color.parseColor("#E0C068")
-            }
-
-            "ice" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#98D8D8"))
-                window.statusBarColor = Color.parseColor("#98D8D8")
-            }
-
-            "normal" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#A8A878"))
-                window.statusBarColor = Color.parseColor("#A8A878")
-            }
-
-            "poison" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#A040A0"))
-                window.statusBarColor = Color.parseColor("#A040A0")
-            }
-
-            "water" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#6890F0"))
-                window.statusBarColor = Color.parseColor("#6890F0")
-            }
-
-            "psychic" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#F85888"))
-                window.statusBarColor = Color.parseColor("#F85888")
-            }
-
-            "rock" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#B8A038"))
-                window.statusBarColor = Color.parseColor("#B8A038")
-            }
-
-            "steel" -> {
-                rlDetails.setBackgroundColor(Color.parseColor("#B8B8D0"))
-                window.statusBarColor = Color.parseColor("#B8B8D0")
-            }
-        }
+        hideStatusBarAndColorizeBackground()
+        colorizeAbilitiesAndStats()
 
         // Format Pokémon's dex number (add 0s e.g. 001, 010).
         if (pokemon.id < 10) tvDetailsNumber.text = "#00${pokemon.id}"
@@ -241,6 +146,14 @@ class DetailsActivity : AppCompatActivity() {
                 }
             }
         }
+
+        // Load base stats.
+        tvDetailsHpStat.text = "${pokemon.stats[0].baseStat}"
+        tvDetailsAttackStat.text = "${pokemon.stats[1].baseStat}"
+        tvDetailsDefenseStat.text = "${pokemon.stats[2].baseStat}"
+        tvDetailsSpecialAttackStat.text = "${pokemon.stats[3].baseStat}"
+        tvDetailsSpecialDefenseStat.text = "${pokemon.stats[4].baseStat}"
+        tvDetailsSpeedStat.text = "${pokemon.stats[5].baseStat}"
     }
 
     /**
@@ -288,6 +201,104 @@ class DetailsActivity : AppCompatActivity() {
         )
 
         VolleySingleton.getInstance(context).addToRequestQueue(jor)
+    }
+
+    private fun hideStatusBarAndColorizeBackground() {
+        // Hide status bar.
+        val window: Window = window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+
+        when (pokemon.types[0].type.name) {
+            "bug" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#A8B820"))
+                window.statusBarColor = Color.parseColor("#A8B820")
+            }
+
+            "dark" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#705848"))
+                window.statusBarColor = Color.parseColor("#705848")
+            }
+
+            "dragon" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#7038F8"))
+                window.statusBarColor = Color.parseColor("#7038F8")
+            }
+
+            "electric" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#F8D030"))
+                window.statusBarColor = Color.parseColor("#F8D030")
+            }
+
+            "fairy" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#EE99AC"))
+                window.statusBarColor = Color.parseColor("#EE99AC")
+            }
+
+            "fire" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#F08030"))
+                window.statusBarColor = Color.parseColor("#F08030")
+            }
+
+            "fighting" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#C03028"))
+                window.statusBarColor = Color.parseColor("#C03028")
+            }
+
+            "flying" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#A890F0"))
+                window.statusBarColor = Color.parseColor("#A890F0")
+            }
+
+            "grass" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#78C850"))
+                window.statusBarColor = Color.parseColor("#78C850")
+            }
+
+            "ghost" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#705898"))
+                window.statusBarColor = Color.parseColor("#705898")
+            }
+
+            "ground" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#E0C068"))
+                window.statusBarColor = Color.parseColor("#E0C068")
+            }
+
+            "ice" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#98D8D8"))
+                window.statusBarColor = Color.parseColor("#98D8D8")
+            }
+
+            "normal" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#A8A878"))
+                window.statusBarColor = Color.parseColor("#A8A878")
+            }
+
+            "poison" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#A040A0"))
+                window.statusBarColor = Color.parseColor("#A040A0")
+            }
+
+            "water" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#6890F0"))
+                window.statusBarColor = Color.parseColor("#6890F0")
+            }
+
+            "psychic" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#F85888"))
+                window.statusBarColor = Color.parseColor("#F85888")
+            }
+
+            "rock" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#B8A038"))
+                window.statusBarColor = Color.parseColor("#B8A038")
+            }
+
+            "steel" -> {
+                rlDetails.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                window.statusBarColor = Color.parseColor("#B8B8D0")
+            }
+        }
     }
 
     private fun colorizeType(cv: CardView, type: String) {
@@ -362,6 +373,244 @@ class DetailsActivity : AppCompatActivity() {
 
             "steel" -> {
                 cv.setCardBackgroundColor(Color.parseColor("#B8B8D0"))
+            }
+        }
+    }
+
+    private fun colorizeAbilitiesAndStats() {
+        when (pokemon.types[0].type.name) {
+            "bug" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#A8B820"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#A8B820"))
+            }
+
+            "dark" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#705848"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#705848"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#705848"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#705848"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#705848"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#705848"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#705848"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#705848"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#705848"))
+            }
+
+            "dragon" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#7038F8"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#7038F8"))
+            }
+
+            "electric" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#F8D030"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#F8D030"))
+            }
+
+            "fairy" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#EE99AC"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#EE99AC"))
+            }
+
+            "fire" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#F08030"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#F08030"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#F08030"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#F08030"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#F08030"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#F08030"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#F08030"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#F08030"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#F08030"))
+            }
+
+            "fighting" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#C03028"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#C03028"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#C03028"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#C03028"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#C03028"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#C03028"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#C03028"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#C03028"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#C03028"))
+            }
+
+            "flying" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#A890F0"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#A890F0"))
+            }
+
+            "grass" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#78C850"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#78C850"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#78C850"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#78C850"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#78C850"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#78C850"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#78C850"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#78C850"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#78C850"))
+            }
+
+            "ghost" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#705898"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#705898"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#705898"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#705898"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#705898"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#705898"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#705898"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#705898"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#705898"))
+            }
+
+            "ground" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#E0C068"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#E0C068"))
+            }
+
+            "ice" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#98D8D8"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#98D8D8"))
+            }
+
+            "normal" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#A8A878"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#A8A878"))
+            }
+
+            "poison" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#A040A0"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#A040A0"))
+            }
+
+            "water" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#6890F0"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#6890F0"))
+            }
+
+            "psychic" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#F85888"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#F85888"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#F85888"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#F85888"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#F85888"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#F85888"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#F85888"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#F85888"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#F85888"))
+            }
+
+            "rock" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#B8A038"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#B8A038"))
+            }
+
+            "steel" -> {
+                tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvDetailsAbilitiesSlot2.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvDetailsAbilitiesSlotHidden.setBackgroundColor(Color.parseColor("#B8B8D0"))
+
+                tvDetailsHpStatLabel.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvDetailsAttackStatLabel.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvDetailsDefenseStatLabel.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#B8B8D0"))
             }
         }
     }

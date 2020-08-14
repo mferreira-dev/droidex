@@ -155,6 +155,6 @@ class DexActivity : AppCompatActivity() {
 
         isLoading = true
         setupRecyclerView()
-        DownloadData().execute("https://pokeapi.co/api/v2/pokemon?limit=150")
+        DownloadData().execute("https://pokeapi.co/api/v2/pokemon?limit=100")
     }
 }
