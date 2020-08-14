@@ -9,6 +9,7 @@ import java.io.Serializable
  * @property levelLearnedAt At what level this Pokémon learns this move.
  */
 data class PokemonMoveVersion (
+    @SerializedName("version_group") val version: NamedApiResource,
     @SerializedName("move_learn_method") val learnMethod: NamedApiResource,
     @SerializedName("level_learned_at") val levelLearnedAt: Int
 ) : Serializable

@@ -13,6 +13,7 @@ data class Move (
     val priority: Int,
     val power: Int,
     @SerializedName("damage_class") val damageClass: NamedApiResource,
-    @SerializedName("effect_entries") val effectEntries: VerboseEffect,
-    @SerializedName("flavor_text_entries") val flavorText: MoveFlavorText
+    @SerializedName("effect_entries") val effectEntries: List<VerboseEffect>,
+    @SerializedName("flavor_text_entries") val flavorText: List<MoveFlavorText>,
+    val type: NamedApiResource
 )

@@ -9,6 +9,8 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
@@ -16,6 +18,11 @@ import com.google.gson.Gson
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_details.*
+import kotlinx.android.synthetic.main.activity_dex.*
+import pt.mferreira.droidex.adapters.DexAdapter
+import pt.mferreira.droidex.adapters.MoveAdapter
+import pt.mferreira.droidex.models.global.PokemonPage
+import pt.mferreira.droidex.models.move.Move
 import pt.mferreira.droidex.models.pokemon.Pokemon
 import pt.mferreira.droidex.models.pokemon.PokemonSpecies
 import pt.mferreira.droidex.singletons.VolleySingleton
@@ -24,17 +31,22 @@ import pt.mferreira.droidex.singletons.VolleySingleton
 class DetailsActivity : AppCompatActivity() {
     private lateinit var context: Context
     lateinit var pokemon: Pokemon
+    private var moves: MutableList<Move> = ArrayList()
+    private val moveAdapter = MoveAdapter(this, moves)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
         context = this
 
+        // Setup move RecyclerView.
+        setupMoveRecyclerView()
+
         // Get selected Pokémon.
         pokemon = intent.getSerializableExtra("details") as Pokemon
 
         hideStatusBarAndColorizeBackground()
-        colorizeAbilitiesAndStats()
+        colorizeUI()
 
         // Format Pokémon's dex number (add 0s e.g. 001, 010).
         if (pokemon.id < 10) tvDetailsNumber.text = "#00${pokemon.id}"
@@ -154,6 +166,21 @@ class DetailsActivity : AppCompatActivity() {
         tvDetailsSpecialAttackStat.text = "${pokemon.stats[3].baseStat}"
         tvDetailsSpecialDefenseStat.text = "${pokemon.stats[4].baseStat}"
         tvDetailsSpeedStat.text = "${pokemon.stats[5].baseStat}"
+
+        var total = 0
+        for (stat in pokemon.stats)
+            total += stat.baseStat
+
+        tvDetailsBaseStatsTotal.text = "$total"
+
+        for (entry in pokemon.moves) {
+            for (details in entry.details) {
+                if (details.learnMethod.name == "level-up" && details.version.name == "ultra-sun-ultra-moon") {
+                    println("lmao report: found ${entry.move.name}")
+                    downloadMoves(entry.move.url)
+                }
+            }
+        }
     }
 
     /**
@@ -377,7 +404,7 @@ class DetailsActivity : AppCompatActivity() {
         }
     }
 
-    private fun colorizeAbilitiesAndStats() {
+    private fun colorizeUI() {
         when (pokemon.types[0].type.name) {
             "bug" -> {
                 tvDetailsAbilitiesSlot1.setBackgroundColor(Color.parseColor("#A8B820"))
@@ -390,6 +417,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#A8B820"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#A8B820"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#A8B820"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#A8B820"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#A8B820"))
             }
 
             "dark" -> {
@@ -403,6 +436,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#705848"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#705848"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#705848"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#705848"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#705848"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#705848"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#705848"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#705848"))
             }
 
             "dragon" -> {
@@ -416,6 +455,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#7038F8"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#7038F8"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#7038F8"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#7038F8"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#7038F8"))
             }
 
             "electric" -> {
@@ -429,6 +474,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#F8D030"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#F8D030"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#F8D030"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#F8D030"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#F8D030"))
             }
 
             "fairy" -> {
@@ -442,6 +493,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#EE99AC"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#EE99AC"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#EE99AC"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#EE99AC"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#EE99AC"))
             }
 
             "fire" -> {
@@ -455,6 +512,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#F08030"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#F08030"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#F08030"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#F08030"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#F08030"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#F08030"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#F08030"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#F08030"))
             }
 
             "fighting" -> {
@@ -468,6 +531,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#C03028"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#C03028"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#C03028"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#C03028"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#C03028"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#C03028"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#C03028"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#C03028"))
             }
 
             "flying" -> {
@@ -481,6 +550,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#A890F0"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#A890F0"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#A890F0"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#A890F0"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#A890F0"))
             }
 
             "grass" -> {
@@ -494,6 +569,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#78C850"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#78C850"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#78C850"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#78C850"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#78C850"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#78C850"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#78C850"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#78C850"))
             }
 
             "ghost" -> {
@@ -507,6 +588,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#705898"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#705898"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#705898"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#705898"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#705898"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#705898"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#705898"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#705898"))
             }
 
             "ground" -> {
@@ -520,6 +607,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#E0C068"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#E0C068"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#E0C068"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#E0C068"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#E0C068"))
             }
 
             "ice" -> {
@@ -533,6 +626,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#98D8D8"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#98D8D8"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#98D8D8"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#98D8D8"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#98D8D8"))
             }
 
             "normal" -> {
@@ -546,6 +645,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#A8A878"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#A8A878"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#A8A878"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#A8A878"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#A8A878"))
             }
 
             "poison" -> {
@@ -559,6 +664,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#A040A0"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#A040A0"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#A040A0"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#A040A0"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#A040A0"))
             }
 
             "water" -> {
@@ -572,6 +683,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#6890F0"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#6890F0"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#6890F0"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#6890F0"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#6890F0"))
             }
 
             "psychic" -> {
@@ -585,6 +702,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#F85888"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#F85888"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#F85888"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#F85888"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#F85888"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#F85888"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#F85888"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#F85888"))
             }
 
             "rock" -> {
@@ -598,6 +721,12 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#B8A038"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#B8A038"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#B8A038"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#B8A038"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#B8A038"))
             }
 
             "steel" -> {
@@ -611,8 +740,56 @@ class DetailsActivity : AppCompatActivity() {
                 tvDetailsSpecialAttackStatLabel.setBackgroundColor(Color.parseColor("#B8B8D0"))
                 tvDetailsSpecialDefenseStatLabel.setBackgroundColor(Color.parseColor("#B8B8D0"))
                 tvDetailsSpeedStatLabel.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvDetailsBaseStatsTotal.setTextColor(Color.parseColor("#B8B8D0"))
+
+                tvMoveMethod1.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvMoveMethod2.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvMoveMethod3.setBackgroundColor(Color.parseColor("#B8B8D0"))
+                tvMoveMethod4.setBackgroundColor(Color.parseColor("#B8B8D0"))
             }
         }
+    }
+
+    private fun setupMoveRecyclerView() {
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        movesRecyclerView.layoutManager = layoutManager
+
+        movesRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (!recyclerView.canScrollVertically(1)) {
+
+                }
+            }
+        })
+
+        movesRecyclerView.adapter = moveAdapter
+    }
+
+    /**
+     * Download the Pokémons learnable moves.
+     *
+     * @param url URL to download from.
+     */
+    private fun downloadMoves(url: String) {
+        val jor = JsonObjectRequest(Request.Method.GET, url, null,
+            Response.Listener {
+                val resp = Gson().fromJson(it.toString(), Move::class.java)
+
+                moves.add(resp)
+                moves.sortedWith(compareBy({it.name}))
+
+                moveAdapter.notifyDataSetChanged()
+            },
+            Response.ErrorListener {
+                Toast.makeText(context,
+                    "Error while performing request. Please check your connection or try again later.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+
+        VolleySingleton.getInstance(context).addToRequestQueue(jor)
     }
 
     /**
