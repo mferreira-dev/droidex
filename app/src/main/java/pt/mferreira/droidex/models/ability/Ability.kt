@@ -18,7 +18,7 @@ data class Ability (
     val name: String,
     @SerializedName("is_main_series") val isMainSeries: Boolean,
     val generation: NamedApiResource,
-    @SerializedName("effect_entries") val inDepthEffect: VerboseEffect,
-    @SerializedName("flavor_text_entries") val gameDescription: AbilityFlavorText,
+    @SerializedName("effect_entries") val inDepthEffect: List<VerboseEffect>,
+    @SerializedName("flavor_text_entries") val gameDescription: List<AbilityFlavorText>,
     val pokemon: List<AbilityPokemon>
 )

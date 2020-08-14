@@ -2,6 +2,7 @@ package pt.mferreira.droidex
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -15,11 +16,12 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.google.gson.Gson
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.ability_sheet_fragment.*
 import kotlinx.android.synthetic.main.activity_details.*
-import pt.mferreira.droidex.models.global.PokemonPage
 import pt.mferreira.droidex.models.pokemon.Pokemon
 import pt.mferreira.droidex.models.pokemon.PokemonSpecies
 import pt.mferreira.droidex.singletons.VolleySingleton
+
 
 class DetailsActivity : AppCompatActivity() {
     private lateinit var context: Context
@@ -30,8 +32,10 @@ class DetailsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_details)
         context = this
 
+        // Get selected Pokémon.
         pokemon = intent.getSerializableExtra("details") as Pokemon
 
+        // Hide status bar.
         val window: Window = window
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
 
@@ -127,14 +131,15 @@ class DetailsActivity : AppCompatActivity() {
             }
         }
 
-        if (pokemon.id < 10)
-            tvDetailsNumber.text = "#00${pokemon.id}"
-        else if (pokemon.id in 10..99)
-            tvDetailsNumber.text = "#0${pokemon.id}"
-        else
-            tvDetailsNumber.text = "#${pokemon.id}"
+        // Format Pokémon's dex number (add 0s e.g. 001, 010).
+        if (pokemon.id < 10) tvDetailsNumber.text = "#00${pokemon.id}"
+        else if (pokemon.id in 10..99) tvDetailsNumber.text = "#0${pokemon.id}"
+        else tvDetailsNumber.text = "#${pokemon.id}"
 
-        tvDetailsName.text = "${pokemon.name.substring(0, 1).toUpperCase()}${pokemon.name.substring(1)}"
+        // Format Pokémon name (first character should be upper case).
+        val fc = pokemon.name.substring(0, 1).toUpperCase()
+        val rest = pokemon.name.substring(1)
+        tvDetailsName.text = "$fc$rest"
 
         // Load type 1.
         tvDetailsType1.text = pokemon.types[0].type.name.toUpperCase()
@@ -148,52 +153,94 @@ class DetailsActivity : AppCompatActivity() {
         } else
             tvDetailsType2.visibility = View.GONE
 
-        // Load image.
-        Picasso.get().load(pokemon.sprites.other.officialArtwork.frontDefault).into(ivDetailsSprite, object :
-            Callback {
-            override fun onSuccess() {
-                detailsSpriteProgress.visibility = View.GONE
-            }
-
-            override fun onError(e: Exception?) {
-
-            }
+        // Load Pokémon image.
+        Picasso.get().load(pokemon.sprites.other.officialArtwork.frontDefault).into(ivDetailsSprite, object : Callback {
+            override fun onSuccess() { detailsSpriteProgress.visibility = View.GONE }
+            override fun onError(e: Exception?) {}
         })
 
         downloadSpecies(pokemon.species.url)
 
-        // Format ability strings.
-        tvDetailsAbilitiesSlotHidden.text = "No hidden ability."
-        val abilities = mutableListOf<String>()
-        for (i in pokemon.abilities.indices) {
-            if (pokemon.abilities[i].ability.name.contains("-")) {
-                val split = pokemon.abilities[i].ability.name.split("-").toMutableList()
-                var new = ""
+        // Insert and format abilities and necessary.
+        var hasHidden = false
+        var firstSlotFilled = false
+        var secondSlotFilled = false
+        for (ability in pokemon.abilities) {
+            var str = "${ability.ability.name.substring(0, 1).toUpperCase()}${ability.ability.name.substring(1)}"
 
-                for (j in split.indices) {
-                    split[j] = "${split[j].substring(0, 1).toUpperCase()}${split[j].substring(1)}"
-                    new = "$new ${split[j]}"
-                }
+            if (ability.isHidden) {
+                hasHidden = true
 
-                if (pokemon.abilities[i].isHidden)
-                    tvDetailsAbilitiesSlotHidden.text = new
-                else
-                    abilities.add(new)
+                // Format ability name if necessary.
+                if (ability.ability.name.contains("-"))
+                    str = formatName(ability.ability.name)
+                tvDetailsAbilitiesSlotHidden.text = str
+            } else if (!firstSlotFilled) {
+                firstSlotFilled = true
+
+                // Format ability name if necessary.
+                if (ability.ability.name.contains("-"))
+                    str = formatName(ability.ability.name)
+                tvDetailsAbilitiesSlot1.text = str
             } else {
-                if (pokemon.abilities[i].isHidden)
-                    tvDetailsAbilitiesSlotHidden.text = "${pokemon.abilities[i].ability.name.substring(0, 1).toUpperCase()}${pokemon.abilities[i].ability.name.substring(1)}"
-                else
-                    abilities.add("${pokemon.abilities[i].ability.name.substring(0, 1).toUpperCase()}${pokemon.abilities[i].ability.name.substring(1)}")
+                secondSlotFilled = true
+
+                // Format ability name if necessary.
+                if (ability.ability.name.contains("-"))
+                    str = formatName(ability.ability.name)
+                tvDetailsAbilitiesSlot2.text = str
             }
         }
 
-        println("lmao report: ${abilities}")
-
-        tvDetailsAbilitiesSlot1.text = abilities[0]
-        if (abilities.size == 2) {
-            tvDetailsAbilitiesSlot2.text = abilities[1]
-        } else
+        if (!secondSlotFilled)
             tvDetailsAbilitiesSlot2.text = "No slot 2 ability."
+
+        if (!hasHidden)
+            tvDetailsAbilitiesSlotHidden.text = "No hidden ability."
+
+        tvDetailsAbilitiesSlot1.setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString("url", pokemon.abilities[0].ability.url)
+
+            val abilitySheetFragment = AbilitySheetFragment()
+            abilitySheetFragment.arguments = bundle
+
+            abilitySheetFragment.show(supportFragmentManager, abilitySheetFragment.tag)
+        }
+
+        tvDetailsAbilitiesSlot2.setOnClickListener {
+            if (tvDetailsAbilitiesSlot2.text != "No slot 2 ability.") {
+                val bundle = Bundle()
+                bundle.putString("url", pokemon.abilities[1].ability.url)
+
+                val abilitySheetFragment = AbilitySheetFragment()
+                abilitySheetFragment.arguments = bundle
+
+                abilitySheetFragment.show(supportFragmentManager, abilitySheetFragment.tag)
+            }
+        }
+
+        tvDetailsAbilitiesSlotHidden.setOnClickListener {
+            if (tvDetailsAbilitiesSlotHidden.text != "No hidden ability.") {
+                if (pokemon.abilities[1].isHidden) {
+                    val bundle = Bundle()
+                    bundle.putString("url", pokemon.abilities[1].ability.url)
+
+                    val abilitySheetFragment = AbilitySheetFragment()
+                    abilitySheetFragment.arguments = bundle
+
+                    abilitySheetFragment.show(supportFragmentManager, abilitySheetFragment.tag)
+                } else {
+                    val bundle = Bundle()
+                    bundle.putString("url", pokemon.abilities[2].ability.url)
+
+                    val abilitySheetFragment = AbilitySheetFragment()
+                    abilitySheetFragment.arguments = bundle
+
+                    abilitySheetFragment.show(supportFragmentManager, abilitySheetFragment.tag)
+                }
+            }
+        }
     }
 
     /**
@@ -207,10 +254,10 @@ class DetailsActivity : AppCompatActivity() {
             Response.Listener {
                 val resp = Gson().fromJson(it.toString(), PokemonSpecies::class.java)
 
-                // Fill species.
+                // Fill species 7 is the english index.
                 tvDetailsSpecies.text = resp.genera[7].genus
 
-                // Fill species panel.
+                // Get latest english description and game.
                 var flavorText = ""
                 var version = ""
                 for (element in resp.flavorText) {
@@ -220,23 +267,15 @@ class DetailsActivity : AppCompatActivity() {
                     }
                 }
 
-                // Format version string.
                 flavorText = flavorText.replace("\n", " ")
-                if (version.contains("-")) {
-                    val split = version.split("-").toMutableList()
-                    version = ""
 
-                    for (i in split.indices) {
-                        split[i] = "${split[i].substring(0, 1).toUpperCase()}${split[i].substring(1)}"
-                        version = "${version} ${split[i]}"
-                    }
-                } else {
-                    version = "${version.substring(0, 1).toUpperCase()}${version.substring(1)}"
-                }
+                // Format version string (remove the '-' if it has one).
+                version = formatName(version)
 
                 tvDetailsDexEntryGame.text = "Pokédex entry from${version}."
                 tvDetailsSpeciesFlavorText.text = flavorText
 
+                // Convert decimetres to metres and hectograms to kilograms.
                 tvDetailsHeight.text = "${((pokemon.height).toFloat() / 10)}m"
                 tvDetailsWeight.text = "${((pokemon.weight).toFloat() / 10)}kg"
             },
@@ -325,5 +364,22 @@ class DetailsActivity : AppCompatActivity() {
                 cv.setCardBackgroundColor(Color.parseColor("#B8B8D0"))
             }
         }
+    }
+
+    /**
+     * Format a game or ability name that contains a '-'.
+     *
+     * @param name String to format.
+     */
+    private fun formatName(name: String): String {
+        var formatted = ""
+
+        val split = name.split("-").toMutableList()
+        for (i in split.indices) {
+            split[i] = "${split[i].substring(0, 1).toUpperCase()}${split[i].substring(1)}"
+            formatted = "$formatted ${split[i]}"
+        }
+
+        return formatted
     }
 }

@@ -8,5 +8,6 @@ import com.google.gson.annotations.SerializedName
  */
 data class VerboseEffect (
     val effect: String,
-    @SerializedName("short_effect")val shortEffect: String
+    @SerializedName("short_effect") val shortEffect: String,
+    val language: NamedApiResource
 )
