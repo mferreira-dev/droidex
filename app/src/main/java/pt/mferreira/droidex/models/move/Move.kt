@@ -3,7 +3,12 @@ package pt.mferreira.droidex.models.move
 import com.google.gson.annotations.SerializedName
 import pt.mferreira.droidex.models.global.NamedApiResource
 import pt.mferreira.droidex.models.global.VerboseEffect
+import java.io.Serializable
 
+/**
+ * @property effectEntries Effect description.
+ * @property flavorText Game description.
+ */
 data class Move (
     val id: Int,
     val name: String,
@@ -16,4 +21,4 @@ data class Move (
     @SerializedName("effect_entries") val effectEntries: List<VerboseEffect>,
     @SerializedName("flavor_text_entries") val flavorText: List<MoveFlavorText>,
     val type: NamedApiResource
-)
+) : Serializable

@@ -415,6 +415,7 @@
                                     android:layout_width="100dp">
 
                                     <TextView
+                                        android:textColor="#ffffff"
                                         android:id="@+id/tvDetailsHpStatLabel"
                                         android:gravity="center"
                                         android:text="HP"
@@ -456,6 +457,7 @@
                                     android:layout_width="100dp">
 
                                     <TextView
+                                        android:textColor="#ffffff"
                                         android:id="@+id/tvDetailsAttackStatLabel"
                                         android:gravity="center"
                                         android:text="Attack"
@@ -497,6 +499,7 @@
                                     android:layout_width="100dp">
 
                                     <TextView
+                                        android:textColor="#ffffff"
                                         android:id="@+id/tvDetailsDefenseStatLabel"
                                         android:gravity="center"
                                         android:text="Defense"
@@ -538,6 +541,7 @@
                                     android:layout_width="100dp">
 
                                     <TextView
+                                        android:textColor="#ffffff"
                                         android:id="@+id/tvDetailsSpecialAttackStatLabel"
                                         android:gravity="center"
                                         android:text="Sp. Attack"
@@ -579,6 +583,7 @@
                                     android:layout_width="100dp">
 
                                     <TextView
+                                        android:textColor="#ffffff"
                                         android:id="@+id/tvDetailsSpecialDefenseStatLabel"
                                         android:gravity="center"
                                         android:text="Sp. Defense"
@@ -620,6 +625,7 @@
                                     android:layout_width="100dp">
 
                                     <TextView
+                                        android:textColor="#ffffff"
                                         android:id="@+id/tvDetailsSpeedStatLabel"
                                         android:gravity="center"
                                         android:text="Speed"
@@ -695,6 +701,7 @@
                         android:layout_height="wrap_content">
 
                         <androidx.cardview.widget.CardView
+                            android:id="@+id/cvMoveMethod1"
                             android:layout_margin="8dp"
                             card_view:cardCornerRadius="12dp"
                             android:layout_width="70dp"
@@ -711,6 +718,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <androidx.cardview.widget.CardView
+                            android:id="@+id/cvMoveMethod2"
                             android:layout_margin="8dp"
                             card_view:cardCornerRadius="12dp"
                             android:layout_width="wrap_content"
@@ -727,6 +735,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <androidx.cardview.widget.CardView
+                            android:id="@+id/cvMoveMethod3"
                             android:layout_margin="8dp"
                             card_view:cardCornerRadius="12dp"
                             android:layout_width="wrap_content"
@@ -743,6 +752,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <androidx.cardview.widget.CardView
+                            android:id="@+id/cvMoveMethod4"
                             android:layout_margin="8dp"
                             card_view:cardCornerRadius="12dp"
                             android:layout_width="wrap_content"

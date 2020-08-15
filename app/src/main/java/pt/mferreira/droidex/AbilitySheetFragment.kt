@@ -1,6 +1,5 @@
 package pt.mferreira.droidex
 
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,6 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.ability_sheet_fragment.*
-import kotlinx.android.synthetic.main.activity_details.*
 import pt.mferreira.droidex.models.ability.Ability
 import pt.mferreira.droidex.singletons.VolleySingleton
 

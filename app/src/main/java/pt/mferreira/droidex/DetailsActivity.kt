@@ -173,10 +173,32 @@ class DetailsActivity : AppCompatActivity() {
 
         tvDetailsBaseStatsTotal.text = "$total"
 
+        downloadByMethod("level-up")
+
+        cvMoveMethod1.setOnClickListener {
+            downloadByMethod("level-up")
+        }
+
+        cvMoveMethod2.setOnClickListener {
+            downloadByMethod("machine")
+        }
+
+        cvMoveMethod3.setOnClickListener {
+            downloadByMethod("egg")
+        }
+
+        cvMoveMethod4.setOnClickListener {
+            downloadByMethod("tutor")
+        }
+    }
+
+    private fun downloadByMethod(method: String) {
+        moves.clear()
+        moveAdapter.notifyDataSetChanged()
+
         for (entry in pokemon.moves) {
             for (details in entry.details) {
-                if (details.learnMethod.name == "level-up" && details.version.name == "ultra-sun-ultra-moon") {
-                    println("lmao report: found ${entry.move.name}")
+                if (details.learnMethod.name == method && details.version.name == "ultra-sun-ultra-moon") {
                     downloadMoves(entry.move.url)
                 }
             }
