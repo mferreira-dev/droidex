@@ -1,11 +1,21 @@
 package pt.mferreira.droidex
 
 import android.content.Context
+import android.database.Cursor
+import android.database.MatrixCursor
+import android.graphics.Color
 import android.os.AsyncTask
 import android.os.Bundle
+import android.provider.BaseColumns
+import android.view.Menu
 import android.view.View
+import android.view.Window
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.cursoradapter.widget.CursorAdapter
+import androidx.cursoradapter.widget.SimpleCursorAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
@@ -17,6 +27,10 @@ import pt.mferreira.droidex.adapters.DexAdapter
 import pt.mferreira.droidex.models.global.PokemonPage
 import pt.mferreira.droidex.models.pokemon.Pokemon
 import pt.mferreira.droidex.singletons.VolleySingleton
+import java.io.BufferedReader
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStreamReader
 
 class DexActivity : AppCompatActivity() {
     private lateinit var context: Context
@@ -24,6 +38,10 @@ class DexActivity : AppCompatActivity() {
     private val dexAdapter = DexAdapter(this, pokemon)
     private var isLoading = true
     private var next = ""
+
+    private lateinit var suggestionsAdapter: SimpleCursorAdapter
+    private var history = arrayListOf<String>()
+    private lateinit var searchView: SearchView
 
     /**
      * Perform download operations asynchronously.
@@ -153,8 +171,134 @@ class DexActivity : AppCompatActivity() {
         context = this
         changeLoadState(true)
 
+        val window: Window = window
+        window.statusBarColor = Color.parseColor("#E53935")
+        setSupportActionBar(toolbar)
+
         isLoading = true
         setupRecyclerView()
         DownloadData().execute("https://pokeapi.co/api/v2/pokemon?limit=100")
+    }
+
+    /**
+     * Load input history from file.
+     */
+    private fun loadHistory() {
+        history = arrayListOf()
+
+        try {
+            val fis: FileInputStream = openFileInput("history.txt")
+            val isr = InputStreamReader(fis)
+            val br = BufferedReader(isr)
+            var line = br.readLine()
+
+            while (line != null) {
+                history.add(line)
+                line = br.readLine()
+            }
+
+            isr.close()
+            fis.close()
+        } catch (ex: Exception) {
+            // File does not exist yet.
+        }
+
+        history.reverse()
+
+        val from = arrayOf("string")
+        val to = intArrayOf(android.R.id.text1)
+        suggestionsAdapter = SimpleCursorAdapter(context, R.layout.suggestion_item, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER)
+
+        updateSuggestionsAdapter("")
+        suggestionsAdapter.notifyDataSetChanged()
+        searchView.suggestionsAdapter = suggestionsAdapter
+    }
+
+    /**
+     * Update suggestions as user modifies the field.
+     *
+     * @param s New character.
+     */
+    private fun updateSuggestionsAdapter(s: String) {
+        val c = MatrixCursor(arrayOf(BaseColumns._ID, "string"))
+        val list = mutableListOf<String>()
+
+        if (s.isNotEmpty()) {
+            for (entry in history) if (entry.contains(s)) list.add(entry)
+        } else {
+            for (entry in history) list.add(entry)
+        }
+
+        for (i in 0 until list.size) c.addRow(arrayOf(i, list[i]))
+        suggestionsAdapter.changeCursor(c)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.options_menu, menu)
+        return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        super.onPrepareOptionsMenu(menu)
+
+        val searchItem = menu.findItem(R.id.action_search)
+        searchView = searchItem?.actionView as SearchView
+
+        val autoCompleteTextViewID = resources.getIdentifier("search_src_text", "id", packageName)
+        val searchAutoCompleteTextView = searchView.findViewById(autoCompleteTextViewID) as? AutoCompleteTextView
+        searchAutoCompleteTextView?.threshold = 0
+
+        val dropDownAnchor: View = searchView.findViewById(searchAutoCompleteTextView!!.dropDownAnchor);
+        dropDownAnchor.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom -> // screen width
+            val screenWidthPixel: Int = resources.displayMetrics.widthPixels
+            searchAutoCompleteTextView.dropDownWidth = screenWidthPixel
+        }
+
+        loadHistory()
+
+        searchView.setOnCloseListener(object: SearchView.OnCloseListener {
+            override fun onClose(): Boolean {
+                if (pokemon.size > 1) {
+                    pokemon.clear()
+                    DownloadData().execute("https://pokeapi.co/api/v2/pokemon?limit=100")
+                }
+
+                return true
+            }
+        })
+
+        searchView.setOnSuggestionListener(object: SearchView.OnSuggestionListener {
+            override fun onSuggestionClick(position: Int): Boolean {
+                val cursor = suggestionsAdapter.getItem(position) as Cursor
+                val txt = cursor.getString(cursor.getColumnIndex("string"))
+                searchView.setQuery(txt, true)
+
+                return true
+            }
+
+            override fun onSuggestionSelect(position: Int): Boolean {
+                return true
+            }
+        })
+
+        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(s: String): Boolean {
+                val fos: FileOutputStream = openFileOutput("history.txt", MODE_APPEND)
+                fos.write("$s\n".toByteArray())
+                fos.close()
+                loadHistory()
+
+
+
+                return false
+            }
+
+            override fun onQueryTextChange(s: String): Boolean {
+                updateSuggestionsAdapter(s)
+                return false
+            }
+        })
+
+        return true
     }
 }

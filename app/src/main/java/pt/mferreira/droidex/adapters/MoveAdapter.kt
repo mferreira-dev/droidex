@@ -9,12 +9,11 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.move_item.view.*
-import pt.mferreira.droidex.AbilitySheetFragment
 import pt.mferreira.droidex.MoveSheetFragment
 import pt.mferreira.droidex.R
 import pt.mferreira.droidex.models.move.Move
 
-class MoveAdapter (private val context: Context, private val move: List<Move>) : RecyclerView.Adapter<MoveAdapter.MyViewHolder>() {
+class MoveAdapter (private val context: Context, private val moves: List<Move>) : RecyclerView.Adapter<MoveAdapter.MyViewHolder>() {
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener {
@@ -76,12 +75,12 @@ class MoveAdapter (private val context: Context, private val move: List<Move>) :
     }
 
     override fun onBindViewHolder(holder: MoveAdapter.MyViewHolder, position: Int) {
-        val move = move[position]
+        val move = moves[position]
         holder.setData(move, position)
     }
 
     override fun getItemCount(): Int {
-        return move.size
+        return moves.size
     }
 
     /**

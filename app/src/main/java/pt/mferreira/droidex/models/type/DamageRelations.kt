@@ -1,5 +1,6 @@
 package pt.mferreira.droidex.models.type
 
+import com.google.gson.annotations.SerializedName
 import pt.mferreira.droidex.models.global.NamedApiResource
 
 /**
@@ -10,11 +11,11 @@ import pt.mferreira.droidex.models.global.NamedApiResource
  * @property halfDamageFrom List of URLs that represent the types this move takes x0.5 damage from. (Type class)
  * @property doubleDamageFrom List of URLs that represent the types this move takes x2 damage from. (Type class)
  */
-data class TypeRelations (
-    val noDamageTo: List<NamedApiResource>,
-    val halfDamageTo: List<NamedApiResource>,
-    val doubleDamageTo: List<NamedApiResource>,
-    val noDamageFrom: List<NamedApiResource>,
-    val halfDamageFrom: List<NamedApiResource>,
-    val doubleDamageFrom: List<NamedApiResource>
+data class DamageRelations (
+    @SerializedName("no_damage_to") val noDamageTo: List<NamedApiResource>,
+    @SerializedName("half_damage_to") val halfDamageTo: List<NamedApiResource>,
+    @SerializedName("double_damage_to") val doubleDamageTo: List<NamedApiResource>,
+    @SerializedName("no_damage_from") val noDamageFrom: List<NamedApiResource>,
+    @SerializedName("half_damage_from") val halfDamageFrom: List<NamedApiResource>,
+    @SerializedName("double_damage_from") val doubleDamageFrom: List<NamedApiResource>
 )

@@ -18,21 +18,24 @@ import com.google.gson.Gson
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_details.*
-import kotlinx.android.synthetic.main.activity_dex.*
-import pt.mferreira.droidex.adapters.DexAdapter
 import pt.mferreira.droidex.adapters.MoveAdapter
-import pt.mferreira.droidex.models.global.PokemonPage
+import pt.mferreira.droidex.adapters.TypeRelationAdapter
 import pt.mferreira.droidex.models.move.Move
 import pt.mferreira.droidex.models.pokemon.Pokemon
 import pt.mferreira.droidex.models.pokemon.PokemonSpecies
+import pt.mferreira.droidex.models.type.Type
 import pt.mferreira.droidex.singletons.VolleySingleton
-
 
 class DetailsActivity : AppCompatActivity() {
     private lateinit var context: Context
     lateinit var pokemon: Pokemon
     private var moves: MutableList<Move> = ArrayList()
     private val moveAdapter = MoveAdapter(this, moves)
+
+    private val weaknesses: MutableList<String> = ArrayList()
+    private val weaknessesAdapter = TypeRelationAdapter(this, weaknesses)
+    private val resistances: MutableList<String> = ArrayList()
+    private val resistancesAdapter = TypeRelationAdapter(this, resistances)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -190,6 +193,9 @@ class DetailsActivity : AppCompatActivity() {
         cvMoveMethod4.setOnClickListener {
             downloadByMethod("tutor")
         }
+
+        setupWeaknesses()
+        setupResistances()
     }
 
     private fun downloadByMethod(method: String) {
@@ -802,6 +808,100 @@ class DetailsActivity : AppCompatActivity() {
                 moves.sortedWith(compareBy({it.name}))
 
                 moveAdapter.notifyDataSetChanged()
+            },
+            Response.ErrorListener {
+                Toast.makeText(context,
+                    "Error while performing request. Please check your connection or try again later.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+
+        VolleySingleton.getInstance(context).addToRequestQueue(jor)
+    }
+
+    private fun setupWeaknesses() {
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        weaknessesRecyclerView.layoutManager = layoutManager
+        weaknessesRecyclerView.adapter = weaknessesAdapter
+
+        for (type in pokemon.types) {
+            downloadWeaknesses(type.type.url)
+        }
+    }
+
+    private fun downloadWeaknesses(url: String) {
+        val jor = JsonObjectRequest(Request.Method.GET, url, null,
+            Response.Listener {
+                val resp = Gson().fromJson(it.toString(), Type::class.java)
+
+                for (element in resp.damageRelations.doubleDamageFrom) {
+                    var exists = false
+
+                    for (weakness in weaknesses) {
+                        if (weakness == element.name)
+                            exists = true
+                    }
+
+                    if (!exists)
+                        weaknesses.add(element.name)
+                }
+
+                weaknessesAdapter.notifyDataSetChanged()
+            },
+            Response.ErrorListener {
+                Toast.makeText(context,
+                    "Error while performing request. Please check your connection or try again later.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+
+        VolleySingleton.getInstance(context).addToRequestQueue(jor)
+    }
+
+    private fun setupResistances() {
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        resistancesRecyclerView.layoutManager = layoutManager
+        resistancesRecyclerView.adapter = resistancesAdapter
+
+        for (type in pokemon.types) {
+            downloadResistances(type.type.url)
+        }
+    }
+
+    private fun downloadResistances(url: String) {
+        val jor = JsonObjectRequest(Request.Method.GET, url, null,
+            Response.Listener {
+                val resp = Gson().fromJson(it.toString(), Type::class.java)
+
+                for (element in resp.damageRelations.halfDamageFrom) {
+                    var exists = false
+
+                    for (resistance in resistances) {
+                        if (resistance == element.name)
+                            exists = true
+                    }
+
+                    if (!exists)
+                        resistances.add(element.name)
+                }
+
+                for (element in resp.damageRelations.noDamageFrom) {
+                    var exists = false
+
+                    for (resistance in resistances) {
+                        if (resistance == element.name)
+                            exists = true
+                    }
+
+                    if (!exists)
+                        resistances.add(element.name)
+                }
+
+                resistancesAdapter.notifyDataSetChanged()
             },
             Response.ErrorListener {
                 Toast.makeText(context,
