@@ -16,13 +16,13 @@ import pt.mferreira.droidex.DetailsActivity
 import pt.mferreira.droidex.R
 import pt.mferreira.droidex.models.pokemon.Pokemon
 
-class DexAdapter (private val context: Context, private val pokemon: List<Pokemon>) : RecyclerView.Adapter<DexAdapter.MyViewHolder>() {
+class DexAdapter (private val context: Context? = null, private val pokemon: List<Pokemon>? = null) : RecyclerView.Adapter<DexAdapter.MyViewHolder>() {
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         init {
             itemView.setOnClickListener {
                 val intent = Intent(context, DetailsActivity::class.java)
                 intent.putExtra("details", currentPokemon)
-                context.startActivity(intent)
+                if (context != null) context.startActivity(intent)
             }
         }
 
@@ -148,11 +148,12 @@ class DexAdapter (private val context: Context, private val pokemon: List<Pokemo
     }
 
     override fun onBindViewHolder(holder: DexAdapter.MyViewHolder, position: Int) {
-        val pokemon = pokemon[position]
+        val pokemon = pokemon?.get(position)
         holder.setData(pokemon, position)
     }
 
     override fun getItemCount(): Int {
-        return pokemon.size
+        if (pokemon != null) return pokemon.size
+        return 0
     }
 }

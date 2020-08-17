@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.android.synthetic.main.ability_sheet_fragment.*
+import kotlinx.android.synthetic.main.fragment_ability_sheet.*
 import kotlinx.android.synthetic.main.fragment_move_sheet.*
 import pt.mferreira.droidex.models.move.Move
 

@@ -10,7 +10,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.ability_sheet_fragment.*
+import kotlinx.android.synthetic.main.fragment_ability_sheet.*
 import pt.mferreira.droidex.models.ability.Ability
 import pt.mferreira.droidex.singletons.VolleySingleton
 
@@ -67,7 +67,7 @@ class AbilitySheetFragment : BottomSheetDialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val v = inflater.inflate(R.layout.ability_sheet_fragment, container, false)
+        val v = inflater.inflate(R.layout.fragment_ability_sheet, container, false)
         return v
     }
 

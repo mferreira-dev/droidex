@@ -23,6 +23,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_dex.*
+import kotlinx.android.synthetic.main.fragment_results_sheet.*
 import pt.mferreira.droidex.adapters.DexAdapter
 import pt.mferreira.droidex.models.global.PokemonPage
 import pt.mferreira.droidex.models.pokemon.Pokemon
@@ -38,7 +39,6 @@ class DexActivity : AppCompatActivity() {
     private val dexAdapter = DexAdapter(this, pokemon)
     private var isLoading = true
     private var next = ""
-
     private lateinit var suggestionsAdapter: SimpleCursorAdapter
     private var history = arrayListOf<String>()
     private lateinit var searchView: SearchView
@@ -288,7 +288,12 @@ class DexActivity : AppCompatActivity() {
                 fos.close()
                 loadHistory()
 
+                val bundle = Bundle()
+                bundle.putString("query", s)
 
+                val resultsSheetFragment = ResultsSheetFragment()
+                resultsSheetFragment.arguments = bundle
+                resultsSheetFragment.show(supportFragmentManager, resultsSheetFragment.tag)
 
                 return false
             }
