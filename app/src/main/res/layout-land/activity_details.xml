@@ -80,6 +80,13 @@
                                             android:textColor="#616161"
                                             android:textSize="18sp"/>
 
+                                        <ImageView
+                                            android:id="@+id/detailsFavorite"
+                                            android:layout_margin="4dp"
+                                            android:src="@drawable/ic_star_border"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"/>
+
                                     </LinearLayout>
 
                                     <LinearLayout

@@ -1,7 +1,9 @@
 package pt.mferreira.droidex
 
+import android.R.attr.data
 import android.content.Context
 import android.graphics.Color
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -14,17 +16,25 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
 import com.google.gson.Gson
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_details.*
+import org.json.JSONObject
 import pt.mferreira.droidex.adapters.MoveAdapter
 import pt.mferreira.droidex.adapters.TypeRelationAdapter
+import pt.mferreira.droidex.models.global.PokemonPage
 import pt.mferreira.droidex.models.move.Move
 import pt.mferreira.droidex.models.pokemon.Pokemon
 import pt.mferreira.droidex.models.pokemon.PokemonSpecies
 import pt.mferreira.droidex.models.type.Type
 import pt.mferreira.droidex.singletons.VolleySingleton
+import java.io.BufferedOutputStream
+import java.io.BufferedWriter
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 
 class DetailsActivity : AppCompatActivity() {
     private lateinit var context: Context
@@ -36,6 +46,51 @@ class DetailsActivity : AppCompatActivity() {
     private val weaknessesAdapter = TypeRelationAdapter(this, weaknesses)
     private val resistances: MutableList<String> = ArrayList()
     private val resistancesAdapter = TypeRelationAdapter(this, resistances)
+
+    inner class AddToFavorites : AsyncTask<String, Void, Int>() {
+        var success = true
+
+        override fun doInBackground(vararg params: String): Int {
+            if (params[0].isNotEmpty()) {
+
+                val stringRequest: StringRequest = object : StringRequest(Method.POST, params[0],
+                    Response.Listener { response ->
+
+                        try {
+                            val jsonObject = JSONObject(response)
+                            success = true
+                        } catch (ex: java.lang.Exception) {
+                            success = false
+                        }
+
+                    },
+                    Response.ErrorListener { error ->
+                        success = false
+                    }) {
+
+                    override fun getParams(): Map<String, String> {
+                        val params: MutableMap<String, String> = HashMap()
+                        params["name"] = pokemon.name
+                        return params
+                    }
+                }
+
+                VolleySingleton.getInstance(context).addToRequestQueue(stringRequest)
+            }
+
+            return 1
+        }
+
+            override fun onPostExecute(result: Int?) {
+                super.onPostExecute(result)
+
+                if (success)
+                    Toast.makeText(context, "POST request sent. Check it out at https://webhook.site/#!/1e63b79c-f943-4cd5-8472-df0e14795ded", Toast.LENGTH_LONG).show()
+                else
+                    Toast.makeText(context, "Could not send POST request, please try again later.", Toast.LENGTH_SHORT).show()
+            }
+
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +115,10 @@ class DetailsActivity : AppCompatActivity() {
         val fc = pokemon.name.substring(0, 1).toUpperCase()
         val rest = pokemon.name.substring(1)
         tvDetailsName.text = "$fc$rest"
+
+        detailsFavorite.setOnClickListener {
+            AddToFavorites().execute("https://webhook.site/1e63b79c-f943-4cd5-8472-df0e14795ded")
+        }
 
         // Load type 1.
         tvDetailsType1.text = pokemon.types[0].type.name.toUpperCase()
